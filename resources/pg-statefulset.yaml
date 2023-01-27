@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet 
+metadata:
+  name: postgres-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: postgres-server
+  serviceName: postgres-headless-svc
+  template:
+    metadata:
+      labels:
+        app: postgres-server 
+    spec:
+      containers:
+        - name: postgres 
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env: 
+          - name: POSTGRES_PASSWORD
+            value: "admin"
+          - name: POSTGRES_USER
+            value: "admin"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c 
+                - exec pg_isready -U "admin" -d "admin" -h 127.0.0.1 -p 5432
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U "admin" -d "admin" -h 127.0.0.1 -p 5432
+          
+    
